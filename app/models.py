@@ -71,3 +71,32 @@ class Region(Base):
     __table_args__ = (
         UniqueConstraint('name', 'country_id', name='uix_region_name_country'),
     )
+
+
+class Subregion(Base):
+    __tablename__ = "subregions"
+
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4
+    )
+    name = Column(
+        String(100),
+        nullable=False
+    )
+    region_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey('regions.id'),
+        nullable=False
+    )
+
+    # link back to Region
+    region = relationship(
+        'Region',
+        back_populates='subregions'
+    )
+
+    __table_args__ = (
+        UniqueConstraint('name', 'region_id', name='uix_subregion_name_region'),
+    )
