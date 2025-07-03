@@ -7,13 +7,12 @@ load_dotenv()
 from sqlalchemy.orm import Session
 from app.database import engine, Base, get_db
 
-# import lookup router
+# import lookup routers
 from app.routers.lookups import router as lookups_router
+from app.routers.classifications import router as classifications_router
+from app.routers.varietals import router as varietals_router
 
 app = FastAPI()
-
-from app.routers.classifications import router as classifications_router
-app.include_router(classifications_router)
 
 @app.on_event("startup")
 def on_startup():
@@ -21,6 +20,8 @@ def on_startup():
     Base.metadata.create_all(bind=engine)
 
 app.include_router(lookups_router)
+app.include_router(classifications_router)
+app.include_router(varietals_router)
 
 @app.get("/ping")
 def ping():

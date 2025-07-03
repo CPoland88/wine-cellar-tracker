@@ -165,6 +165,11 @@ class Wine(Base):
     producer = Column(String(100), nullable=False)
     label = Column(String(100), nullable=False)
     vintage = Column(Integer, nullable=False)
+    varietals = relationship(
+        'Varietal',
+        secondary='wine_varietals',
+        backref='wines'
+    )
 
     # 3. Foreign key to Classification
     classification_id = Column(
@@ -173,3 +178,40 @@ class Wine(Base):
         nullable=True
     )
     classification = relationship('Classification')
+
+# --- Varietal and Blend models -----------------------------
+class Varietal(Base):
+    __tablename__ = "varietals"
+
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4
+    )
+    name = Column(
+        String(100),
+        unique=True, 
+        nullable=False
+    )
+
+wine_varietals = Table(
+    'wine_varietals',
+    Base.metadata,
+    Column(
+        'wine_id',
+        UUID(as_uuid=True),
+        ForeignKey('wines.id'),
+        primary_key=True
+    ),
+    Column(
+        'varietal_id',
+        UUID(as_uuid=True),
+        ForeignKey('varietals.id'),
+        primary_key=True
+    ),
+    Column(
+        'blend_pct',
+        DECIMAL(5, 2),
+        nullable=False
+    )
+)

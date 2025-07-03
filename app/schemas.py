@@ -66,3 +66,18 @@ class ClassificationRead(ClassificationBase):
 
     class Config:
         orm_mode = True
+
+# --- Varietal Schemas ---------------------------
+class VarietalBase(BaseModel):
+    name: str
+
+class VarietalCreate(VarietalBase):
+    """Input when creating a new varietal."""
+    pass
+
+class VarietalRead(VarietalBase):
+    """Response model for returning varietal data."""
+    id: UUID4
+
+    class Config:
+        orm_mode = True
