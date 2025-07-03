@@ -12,6 +12,9 @@ from app.routers.lookups import router as lookups_router
 
 app = FastAPI()
 
+from app.routers.classifications import router as classifications_router
+app.include_router(classifications_router)
+
 @app.on_event("startup")
 def on_startup():
     # Create the database tables if they do not exist

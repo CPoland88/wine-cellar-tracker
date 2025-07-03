@@ -51,3 +51,18 @@ class SubregionRead(SubregionBase):
 
     class Config:
         orm_mode = True
+
+# --- Classification Schemas ----------------------
+class ClassificationBase(BaseModel):
+    name: str
+    country_id: Optional[UUID4]
+    region_id: Optional[UUID4]
+
+class ClassificationCreate(ClassificationBase):
+    pass
+
+class ClassificationRead(ClassificationBase):
+    id: UUID4
+
+    class Config:
+        orm_mode = True
