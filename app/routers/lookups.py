@@ -57,7 +57,7 @@ def get_country(
     return country
 
 @router.put(
-    "countries/{country_id}",
+    "/countries/{country_id}",
     response_model=schemas.CountryRead
 )
 def update_country(

@@ -16,6 +16,30 @@ from sqlalchemy.orm import relationship
 
 from app.database import Base
 
+# -- Enumerations for bottle size, closure ----------------------------
+class BottleSize(PyEnum):
+    PICCOLO = "piccolo"  # 187ml
+    HALF = "small"  # 375ml
+    STANDARD = "standard"  # 750ml
+    MAGNUM = "magnum"  # 1500ml
+    JEROBOAM = "jeroboam"  # 3000ml
+    REHOBOAM = "rehoboam"  # 4500ml
+    METHUSELAH = "methuselah"  # 6000ml
+    SALMANAZAR = "salmanazar"  # 9000ml
+    BALTHAZAR = "balthazar"  # 12000ml
+    NEBUCHADNEZZAR = "nebuchadnezzar"  # 15000ml
+    MELCHIOR = "melchior"  # 18000ml
+    OTHER = "other"  # Any other size not listed
+
+class ClosureType(PyEnum):
+    CORK = "cork"
+    SYNTHETIC = "synthetic"
+    SCREW_CAP = "screw cap"
+    CROWN_CAP = "crown cap"
+    OTHER = "other"
+# -------------------------------------------------------------
+
+# -- Country, Region, Subregion models ----------------------------
 class Country(Base):
     __tablename__ = "countries"
 
@@ -100,3 +124,52 @@ class Subregion(Base):
     __table_args__ = (
         UniqueConstraint('name', 'region_id', name='uix_subregion_name_region'),
     )
+# -------------------------------------------------------------
+
+# -- Wine classification enums --------------------------------
+class Classification(Base):
+    __tablename__ = "classifications"
+
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4
+    )
+    name = Column(String(100), nullable=False)
+
+    # Scope columns - one or the other can be NULL for general classifications
+    country_id = Column(UUID(as_uuid=True), ForeignKey('countries.id'), nullable=True)
+    region_id = Column(UUID(as_uuid=True), ForeignKey('regions.id'), nullable=True)
+
+    # Relationships back to the lookups
+    country = relationship('Country', backref='classifications')
+    region = relationship('Region', backref='classifications')
+
+    __table_args__ = (
+        # Prevent exact duplicates for the same scope
+        UniqueConstraint('name', 'country_id', 'region_id',
+                         name='uix_classification_name_scope'),
+    )
+
+class Wine(Base):
+    __tablename__ = "wines"
+    
+    # 1. Primary key
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4
+    )
+
+    # 2. Core identification fields
+    producer = Column(String(100), nullable=False)
+    label = Column(String(100), nullable=False)
+    vintage = Column(Integer, nullable=False)
+
+    # 3. Foreign key to Classification
+    classification_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey('classifications.id'),
+        nullable=True
+    )
+    classification = relationship('Classification')
