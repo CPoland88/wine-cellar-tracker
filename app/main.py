@@ -1,10 +1,14 @@
+from fastapi import FastAPI, Depends
 from dotenv import load_dotenv
+# load env vars (for DB URL, etc.)
 load_dotenv()
 
-from fastapi import FastAPI, Depends
+# import DB setup
 from sqlalchemy.orm import Session
+from app.database import engine, Base, get_db
 
-from app.database import engine, Base, SessionLocal
+# import lookup router
+from app.routers.lookups import router as lookups_router
 
 app = FastAPI()
 
@@ -13,12 +17,7 @@ def on_startup():
     # Create the database tables if they do not exist
     Base.metadata.create_all(bind=engine)
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+app.include_router(lookups_router)
 
 @app.get("/ping")
 def ping():
