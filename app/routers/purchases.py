@@ -18,7 +18,7 @@ def create_purchase(
     db: Session = Depends(get_db)
 ):
     if not db.query(models.Wine).get(data.wine_id):
-        raise HTTPException(400, "Wine not found")
+        raise HTTPException(status_code=400, detail= "Wine not found")
     new = models.Purchase(**data.dict())
     
     db.add(new)
@@ -55,7 +55,7 @@ def get_purchase(
     """
     purchase = db.query(models.Purchase).get(purchase_id)
     if not purchase:
-        raise HTTPException(404, "Purchase not found")
+        raise HTTPException(status_code=404, detail= "Purchase not found")
     return purchase
 
 # --- Update an existing Purchase --------------
@@ -73,7 +73,7 @@ def update_purchase(
     """
     purchase = db.query(models.Purchase).get(purchase_id)
     if not purchase:
-        raise HTTPException(404, "Purchase not found")
+        raise HTTPException(status_code=404, detail= "Purchase not found")
     
     # Apply updates
     purchase.wine_id        = data.wine_id
@@ -100,7 +100,7 @@ def purchase_delete(
     """
     purchase = db.query(models.Purchase).get(purchase_id)
     if not purchase:
-        raise HTTPException(404, "Purchase not found")
+        raise HTTPException(status_code=404, detail= "Purchase not found")
     db.delete(purchase)
     db.commit()
     return None

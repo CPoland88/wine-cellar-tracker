@@ -237,3 +237,28 @@ class Purchase(Base):
     receipt_url     = Column(String(500), nullable=True)    # link or photo URL
 
     wine = relationship('Wine', backref='purchases')
+
+
+# --- Critic & Quality metrics ----------------------------
+class CriticScore(Base):
+    __tablename__ = 'critic_scores'
+
+    id          = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    wine_id     = Column(UUID(as_uuid=True), ForeignKey('wines.id'), nullable=False)
+    source      = Column(String(100), nullable=False)   # e.g., "WA", "Decanter"
+    score       = Column(DECIMAL(5,2), nullable=False)  # e.g., 96.00
+    review_date = Column(Date, nullable=True)
+
+    wine = relationship('Wine', backref='critic_scores')
+
+class WineMetrics(Base):
+    __tablename__ = 'wine_metrics'
+
+    wine_id         = Column(UUID(as_uuid=True), ForeignKey('wines.id'), primary_key=True)
+    avg_score       = Column(DECIMAL(5,2), nullable=True)
+    review_count    = Column(Integer, nullable=False, default=0)
+    current_market  = Column(Numeric(10,2), nullable=True)
+    rarity_score    = Column(DECIMAL(5,2), nullable=True)
+    qpr             = Column(DECIMAL(5,2), nullable=True)
+
+    wine = relationship('Wine', backref='metrics', uselist=False)

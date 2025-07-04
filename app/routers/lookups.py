@@ -21,7 +21,7 @@ def create_country(
                 .filter(models.Country.name == country.name)\
                 .first()
     if existing:
-        raise HTTPException(400, "Country already exists")
+        raise HTTPException(status_code=400, detail= "Country already exists")
 
     new = models.Country(name=country.name)
     db.add(new)
@@ -53,7 +53,7 @@ def get_country(
 ):
     country = db.query(models.Country).get(country_id)
     if not country:
-        raise HTTPException(404, "Country not found")
+        raise HTTPException(status_code=404, detail= "Country not found")
     return country
 
 @router.put(
@@ -67,7 +67,7 @@ def update_country(
 ):
     country = db.query(models.Country).get(country_id)
     if not country:
-        raise HTTPException(404, "Country not found")
+        raise HTTPException(status_code=404, detail= "Country not found")
     country.name = country_in.name
     db.commit()
     db.refresh(country)
@@ -83,7 +83,7 @@ def delete_country(
 ):
     country = db.query(models.Country).get(country_id)
     if not country:
-        raise HTTPException(404, "Country not found")
+        raise HTTPException(status_code=404, detail= "Country not found")
     db.delete(country)
     db.commit()
 
@@ -101,7 +101,7 @@ def create_region(
     # 1. Ensure the parent country exists
     country = db.query(models.Country).get(region.country_id)
     if not country:
-        raise HTTPException(404, "Country does not exist")
+        raise HTTPException(status_code=404, detail= "Country does not exist")
     
     # 2. Prevent duplicate region names within the same country
     existing = db.query(models.Region)\
@@ -111,7 +111,7 @@ def create_region(
                 )\
                 .first()
     if existing:
-        raise HTTPException(400, "Region already exists for this country")
+        raise HTTPException(status_code=400, detail= "Region already exists for this country")
 
     # 3. Create, commit and return the new region
     new = models.Region(
@@ -147,7 +147,7 @@ def get_region(
 ):
     region = db.query(models.Region).get(region_id)
     if not region:
-        raise HTTPException(404, "Region not found")
+        raise HTTPException(status_code=404, detail= "Region not found")
     return region
 
 @router.put(
@@ -161,11 +161,11 @@ def update_region(
 ):
     region = db.query(models.Region).get(region_id)
     if not region:
-        raise HTTPException(404, "Region not found")
+        raise HTTPException(status_code=404, detail= "Region not found")
     
     # Ensure the parent country exists
     if not db.query(models.Country).get(region_in.country_id):
-        raise HTTPException(404, "Country does not exist")
+        raise HTTPException(status_code=404, detail= "Country does not exist")
     
     region.name = region_in.name
     region.country_id = region_in.country_id
@@ -183,7 +183,7 @@ def delete_region(
 ):
     region = db.query(models.Region).get(region_id)
     if not region:
-        raise HTTPException(404, "Region not found")
+        raise HTTPException(status_code=404, detail= "Region not found")
     db.delete(region)
     db.commit()
 
@@ -200,7 +200,7 @@ def create_subregion(
     # 1. Ensure the parent region exists
     region = db.query(models.Region).get(subregion.region_id)
     if not region:
-        raise HTTPException(404, "Region does not exist")
+        raise HTTPException(status_code=404, detail= "Region does not exist")
     
     # 2. Prevent duplicate subregion names within the same region
     existing = db.query(models.Subregion)\
@@ -211,7 +211,7 @@ def create_subregion(
                 .first()
     
     if existing:
-        raise HTTPException(400, "Subregion already exists for this region")
+        raise HTTPException(status_code=400, detail= "Subregion already exists for this region")
 
     # 3. Create, commit and return the new subregion
     new = models.Subregion(
@@ -247,7 +247,7 @@ def get_subregion(
 ):
     subregion = db.query(models.Subregion).get(subregion_id)
     if not subregion:
-        raise HTTPException(404, "Subregion not found")
+        raise HTTPException(status_code=404, detail= "Subregion not found")
     return subregion
 
 @router.put(
@@ -261,11 +261,11 @@ def update_subregion(
 ):
     subregion = db.query(models.Subregion).get(subregion_id)
     if not subregion:
-        raise HTTPException(404, "Subregion not found")
+        raise HTTPException(status_code=404, detail= "Subregion not found")
     
     # Ensure the parent region exists
     if not db.query(models.Region).get(subregion_in.region_id):
-        raise HTTPException(404, "Region does not exist")
+        raise HTTPException(status_code=404, detail= "Region does not exist")
     
     subregion.name = subregion_in.name
     subregion.region_id = subregion_in.region_id
@@ -283,6 +283,6 @@ def delete_subregion(
 ):
     subregion = db.query(models.Subregion).get(subregion_id)
     if not subregion:
-        raise HTTPException(404, "Subregion not found")
+        raise HTTPException(status_code=404, detail= "Subregion not found")
     db.delete(subregion)
     db.commit()

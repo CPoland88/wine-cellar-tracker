@@ -18,13 +18,13 @@ def create_wine(
 ):
     # 1. Validate required lookups exist
     if not db.query(models.Country).get(data.country_id):
-        raise HTTPException(400, "Country not found")
+        raise HTTPException(status_code=400, detail= "Country not found")
     if not db.query(models.Region).get(data.region_id):
-        raise HTTPException(400, "Region not found")
+        raise HTTPException(status_code=400, detail= "Region not found")
     if data.subregion_id and not db.query(models.Subregion).get(data.subregion_id):
-        raise HTTPException(400, "Subregion not found")
+        raise HTTPException(status_code=400, detail= "Subregion not found")
     if data.classification_id and not db.query(models.Classification).get(data.classification_id):
-        raise HTTPException(400, "Classification not found")
+        raise HTTPException(status_code=400, detail= "Classification not found")
     
     # 2. Create the wine record
     new = models.Wine(
@@ -77,7 +77,7 @@ def get_wine(
     """
     wine = db.query(models.Wine).get(wine_id)
     if not wine:
-        raise HTTPException(404, "Wine not found")
+        raise HTTPException(status_code=404, detail= "Wine not found")
     return wine
 
 # --- Update an existing wine --------------
@@ -95,17 +95,17 @@ def update_wine(
     """
     wine = db.query(models.Wine).get(wine_id)
     if not wine:
-        raise HTTPException(404, "Wine not found")
+        raise HTTPException(status_code=404, detail= "Wine not found")
     
     # Validate lookups
     if not db.query(models.Country).get(data.country_id):
-        raise HTTPException(400, "Country not found")
+        raise HTTPException(status_code=400, detail= "Country not found")
     if not db.query(models.Region).get(data.region_id):
-        raise HTTPException(400, "Region not found")
+        raise HTTPException(status_code=400, detail= "Region not found")
     if data.subregion_id and not db.query(models.Subregion).get(data.subregion_id):
-        raise HTTPException(400, "Subregion not found")
+        raise HTTPException(status_code=400, detail= "Subregion not found")
     if data.classification_id and not db.query(models.Classification).get(data.classification_id):
-        raise HTTPException(400, "Classification not found")
+        raise HTTPException(status_code=400, detail= "Classification not found")
     
     # Apply updates
     wine.producer           = data.producer
@@ -137,7 +137,7 @@ def wine_delete(
     """
     wine = db.query(models.Wine).get(wine_id)
     if not wine:
-        raise HTTPException(404, "Wine not found")
+        raise HTTPException(status_code=404, detail= "Wine not found")
     db.delete(wine)
     db.commit()
     return None

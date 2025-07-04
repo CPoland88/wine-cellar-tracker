@@ -18,9 +18,9 @@ def create_classification(
 ):
     # optionally, verify if parent scope exists
     if data.country_id and not db.query(models.Country).get(data.country_id):
-        raise HTTPException(400, "Country does not exist")
+        raise HTTPException(status_code=400, detail= "Country does not exist")
     if data.region_id and not db.query(models.Region).get(data.region_id):
-        raise HTTPException(400, "Region does not exist")
+        raise HTTPException(status_code=400, detail= "Region does not exist")
     
     new = models.Classification(
         name=data.name,
@@ -60,7 +60,7 @@ def get_classification(
 ):
     cls = db.query(models.Classification).get(id)
     if not cls:
-        raise HTTPException(404, "Classification not found")
+        raise HTTPException(status_code=404, detail= "Classification not found")
     return cls
 
 @router.put(
@@ -74,7 +74,7 @@ def update_classification(
 ):
     cls = db.query(models.Classification).get(id)
     if not cls:
-        raise HTTPException(404, "Classification not found")
+        raise HTTPException(status_code=404, detail= "Classification not found")
     
     # optionally, revalidate scope
     cls.name = data.name
@@ -94,7 +94,7 @@ def delete_classification(
 ):
     cls = db.query(models.Classification).get(id)
     if not cls:
-        raise HTTPException(404, "Classification not found")
+        raise HTTPException(status_code=404, detail= "Classification not found")
     
     db.delete(cls)
     db.commit()

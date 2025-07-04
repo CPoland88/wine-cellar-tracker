@@ -19,7 +19,7 @@ def create_varietal(
     # 1. Prevent duplicates
     existing = db.query(models.Varietal).filter(models.Varietal.name == data.name).first()
     if existing:
-        raise HTTPException(400, "Varietal already exists")
+        raise HTTPException(status_code=400, detail= "Varietal already exists")
     
     # 2. Create & return
     new = models.Varietal(name=data.name)
@@ -54,7 +54,7 @@ def get_varietal(
 ):
     varietal = db.query(models.Varietal).get(varietal_id)
     if not varietal:
-        raise HTTPException(404, "Varietal not found")
+        raise HTTPException(status_code=404, detail= "Varietal not found")
     return varietal
 
 # --- Update an existing Varietal ---------------------------
@@ -69,8 +69,10 @@ def update_varietal(
 ):
     varietal = db.query(models.Varietal).get(varietal_id)
     if not varietal:
-        raise HTTPException(404, "Varietal not found")
+        raise HTTPException(status_code=404, detail= "Varietal not found")
+    
     varietal.name = data.name
+    
     db.commit()
     db.refresh(varietal)
     return varietal
@@ -86,7 +88,7 @@ def delete_varietal(
 ):
     varietal = db.query(models.Varietal).get(varietal_id)
     if not varietal:
-        raise HTTPException(404, "Varietal not found")
+        raise HTTPException(status_code=404, detail= "Varietal not found")
     db.delete(varietal)
     db.commit()
     return None
