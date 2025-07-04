@@ -10,6 +10,8 @@ from sqlalchemy import (
     Enum as SAEnum,
     Table,
     UniqueConstraint,
+    Date,
+    Numeric
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -222,4 +224,16 @@ class Wine(Base):
     __table_args__ = (
         UniqueConstraint('producer', 'label', 'vintage', 'bottle_size', name='uix_wine_unique'),
     )
-    
+
+# ---- Purchase price and timing --------------------------
+class Purchase(Base):
+    __tablename__ = 'purchases'
+
+    id              = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    wine_id         = Column(UUID(as_uuid=True),ForeignKey('wines.id'), nullable=False)
+    purchase_date   = Column(Date, nullable=False)
+    price_amount    = Column(Numeric(10,2), nullable=False)
+    price_currency  = Column(String(3), nullable=False)     # ISO currency code, e.g., "USD"
+    receipt_url     = Column(String(500), nullable=True)    # link or photo URL
+
+    wine = relationship('Wine', backref='purchases')

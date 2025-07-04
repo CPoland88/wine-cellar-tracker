@@ -1,6 +1,7 @@
-from pydantic import BaseModel, UUID4, condecimal
+from pydantic import BaseModel, UUID4, condecimal, constr
 from typing import Optional, List
 from app.models import BottleSize, ClosureType
+from datetime import date
 
 # --- Country Schemas -----------------------------
 class CountryBase(BaseModel):
@@ -108,6 +109,25 @@ class WineRead(WineBase):
     subregion: Optional[SubregionRead] = None
     classification: Optional[ClassificationRead] = None
     varietals: List[VarietalRead] = []
+
+    class Config:
+        orm_mode = True
+
+
+# --- Purchase schemas ---------------------------
+class PurchaseBase(BaseModel):
+    wine_id: UUID4
+    purchase_date: date
+    price_amount: condecimal(max_digits=10, decimal_places=2)
+    price_currency: constr(min_length=3, max_length=3)
+    receipt_url: Optional[str] = None
+
+class PurchaseCreate(PurchaseBase):
+    pass
+
+class PurchaseRead(PurchaseBase):
+    id: UUID4
+    wine: WineRead  # nested
 
     class Config:
         orm_mode = True
