@@ -7,7 +7,7 @@ from sqlalchemy import (
     Integer,
     DECIMAL,
     ForeignKey,
-    Enum,
+    Enum as SAEnum,
     Table,
     UniqueConstraint,
 )
@@ -151,34 +151,6 @@ class Classification(Base):
                          name='uix_classification_name_scope'),
     )
 
-class Wine(Base):
-    __tablename__ = "wines"
-    
-    # 1. Primary key
-    id = Column(
-        UUID(as_uuid=True),
-        primary_key=True,
-        default=uuid.uuid4
-    )
-
-    # 2. Core identification fields
-    producer = Column(String(100), nullable=False)
-    label = Column(String(100), nullable=False)
-    vintage = Column(Integer, nullable=False)
-    varietals = relationship(
-        'Varietal',
-        secondary='wine_varietals',
-        backref='wines'
-    )
-
-    # 3. Foreign key to Classification
-    classification_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey('classifications.id'),
-        nullable=True
-    )
-    classification = relationship('Classification')
-
 # --- Varietal and Blend models -----------------------------
 class Varietal(Base):
     __tablename__ = "varietals"
@@ -215,3 +187,39 @@ wine_varietals = Table(
         nullable=False
     )
 )
+
+# --- Wine table format ---------------------------------
+class Wine(Base):
+    __tablename__ = "wines"
+    
+    # 1. Primary key and core identity
+    id          = Column(UUID(as_uuid=True), primary_key=True,default=uuid.uuid4)
+    producer    = Column(String(100), nullable=False)
+    label       = Column(String(100), nullable=False)
+    vintage     = Column(Integer, nullable=False)
+
+    # 2. Geographic scope
+    country_id      = Column(UUID(as_uuid=True), ForeignKey('countries.id'), nullable=False)
+    region_id       = Column(UUID(as_uuid=True), ForeignKey('regions.id'), nullable=False)
+    subregion_id    = Column(UUID(as_uuid=True), ForeignKey('subregions.id'), nullable=False)
+    
+    # 3. Classification lookup
+    classification_id = Column(UUID(as_uuid=True), ForeignKey('classifications.id'), nullable=True)
+
+    # 4. Physical attributes
+    bottle_size     = Column(SAEnum(BottleSize), nullable=False)
+    closure_type    = Column(SAEnum(ClosureType), nullable=False)
+    abv             = Column(DECIMAL(4,2), nullable=True)
+
+    # 5. Relationships
+    country         = relationship('Country')
+    region          = relationship('Region')
+    subregion       = relationship('Subregion')
+    classification  = relationship('Classification')
+    varietals       = relationship('Varietal', secondary='wine_varietals', backref='wines')
+
+    # 6. Uniqueness: no duplicate producer/label/vintage/size combos
+    __table_args__ = (
+        UniqueConstraint('producer', 'label', 'vintage', 'bottle_size', name='uix_wine_unique'),
+    )
+    

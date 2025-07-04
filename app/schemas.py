@@ -1,5 +1,6 @@
-from pydantic import BaseModel, UUID4
+from pydantic import BaseModel, UUID4, condecimal
 from typing import Optional, List
+from app.models import BottleSize, ClosureType
 
 # --- Country Schemas -----------------------------
 class CountryBase(BaseModel):
@@ -78,6 +79,35 @@ class VarietalCreate(VarietalBase):
 class VarietalRead(VarietalBase):
     """Response model for returning varietal data."""
     id: UUID4
+
+    class Config:
+        orm_mode = True
+
+# —-- Wine Schemas ———————————————————————————————-
+class WineBase(BaseModel):
+    producer: str
+    label: str
+    vintage: int
+    country_id: UUID4
+    region_id: UUID4
+    subregion_id: Optional[UUID4] = None
+    classification_id: Optional[UUID4] = None
+    bottle_size: BottleSize
+    closure_type: ClosureType
+    abv: Optional[condecimal(max_digits=4, decimal_places=2)] = None
+
+class WineCreate(WineBase):
+    """Fields required to create a new wine."""
+    pass
+
+class WineRead(WineBase):
+    """Fields returned when reading a wine, including ID and nested lookups."""
+    id: UUID4
+    country: CountryRead
+    region: RegionRead
+    subregion: Optional[SubregionRead] = None
+    classification: Optional[ClassificationRead] = None
+    varietals: List[VarietalRead] = []
 
     class Config:
         orm_mode = True

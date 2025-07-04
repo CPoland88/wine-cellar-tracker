@@ -11,6 +11,7 @@ from app.database import engine, Base, get_db
 from app.routers.lookups import router as lookups_router
 from app.routers.classifications import router as classifications_router
 from app.routers.varietals import router as varietals_router
+from app.routers.wines import router as wines_router
 
 app = FastAPI()
 
@@ -22,6 +23,7 @@ def on_startup():
 app.include_router(lookups_router)
 app.include_router(classifications_router)
 app.include_router(varietals_router)
+app.include_router(wines_router)
 
 @app.get("/ping")
 def ping():
