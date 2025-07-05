@@ -13,7 +13,8 @@ from app.routers.classifications import router as classifications_router
 from app.routers.varietals import router as varietals_router
 from app.routers.wines import router as wines_router
 from app.routers.purchases import router as purchases_router
-from app.routers.purchases import router as scores_router
+from app.routers.critic_scores import router as critic_scores_router
+from app.routers.metrics import router as metrics_router
 
 app = FastAPI()
 
@@ -27,7 +28,8 @@ app.include_router(classifications_router)
 app.include_router(varietals_router)
 app.include_router(wines_router)
 app.include_router(purchases_router)
-app.include_router(scores_router)
+app.include_router(critic_scores_router)
+app.include_router(metrics_router)
 
 @app.get("/ping")
 def ping():

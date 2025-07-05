@@ -131,3 +131,31 @@ class PurchaseRead(PurchaseBase):
 
     class Config:
         orm_mode = True
+
+
+# --- Critic and Qualtiy metric schemas ------------
+class CriticScoreBase(BaseModel):
+    wine_id: UUID4
+    source: str
+    score: condecimal(max_digits=5, decimal_places=2)
+    review_date: Optional[date]
+
+class CriticScoreCreate(CriticScoreBase):
+    pass 
+
+class CriticScoreRead(CriticScoreBase):
+    id: UUID4
+
+    class Config:
+        orm_mode = True
+
+class WineMetricsRead(BaseModel):
+    wine_id: UUID4
+    avg_score: Optional[condecimal(max_digits=5, decimal_places=2)]
+    review_count: int
+    current_market: Optional[condecimal(max_digits=10, decimal_places=2)]
+    rarity_score: Optional[condecimal(max_digits=5, decimal_places=2)]
+    qpr: Optional[condecimal(max_digits=5, decimal_places=2)]
+
+    class Config:
+        orm_mode = True

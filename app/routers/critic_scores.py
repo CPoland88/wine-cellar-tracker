@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 from app import models, schemas
 from app.database import get_db
 
-router = APIRouter(prefix="/scores", tags=["scores"],)
+router = APIRouter(prefix="/critic-scores", tags=["critic-scores"],)
 
 # --- Create a critic score ---------------------------
 @router.post(
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/scores", tags=["scores"],)
     response_model = schemas.CriticScoreRead,
     status_code = status.HTTP_201_CREATED
 )
-def create_score(
+def create_critic_score(
     data: schemas.CriticScoreCreate,
     db: Session = Depends(get_db)
 ):
@@ -31,75 +31,79 @@ def create_score(
     "",
     response_model = List[schemas.CriticScoreRead]
 )
-def list_scores(
+def list_critic_scores(
+    wine_id: Optional[str] = None,
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db)
 ):
-    return db.query(models.CriticScore)\
-                .offset(skip)\
-                .limit(limit)\
-                .all()
+    q = db.query(models.CriticScore)
+    if wine_id:
+        q = q.filter(models.CriticScore.wine_id == wine_id)
+    return q.offset(skip)\
+            .limit(limit)\
+            .all()
+
 
 # --- Get a single critic score by id ------------
 @router.get(
-    "/{score_id}",
+    "/{critic_score_id}",
     response_model = schemas.CriticScoreRead
 )
-def get_score(
-    score_id: str,
+def get_critic_score(
+    critic_score_id: str,
     db: Session = Depends(get_db)
 ):
     """
     Fetch a single critic score by its UUID
     """
-    score = db.query(models.CriticScore).get(score_id)
-    if not score:
+    critic_score = db.query(models.CriticScore).get(critic_score_id)
+    if not critic_score:
         raise HTTPException(status_code=404, detail= "Critic score not found")
-    return score
+    return critic_score
 
 # --- Update an existing critic score --------------
 @router.put(
-    "/{score_id}",
+    "/{critic_score_id}",
     response_model = schemas.CriticScoreRead
 )
-def update_score(
-    score_id: str,
+def update_critic_score(
+    critic_score_id: str,
     data: schemas.CriticScoreCreate,
     db: Session = Depends(get_db)
 ):
     """
     Update an existing critic score's details
     """
-    score = db.query(models.CriticScore).get(score_id)
-    if not score:
+    critic_score = db.query(models.CriticScore).get(critic_score_id)
+    if not critic_score:
         raise HTTPException(status_code=404, detail= "Critic score not found")
     
     # Apply updates
-    score.wine_id       = data.wine_id
-    score.source        = data.source
-    score.score         = data.score
-    score.review_date   = data.review_date
+    critic_score.wine_id       = data.wine_id
+    critic_score.source        = data.source
+    critic_score.score         = data.score
+    critic_score.review_date   = data.review_date
     
     db.commit()
-    db.refresh(score)
-    return score
+    db.refresh(critic_score)
+    return critic_score
 
 # --- Delete an existing critic score -----------------------
 @router.delete(
-    "/{score_id}",
+    "/{critic_score_id}",
     status_code = status.HTTP_204_NO_CONTENT
 )
-def score_delete(
-    score_id: str,
+def critic_score_delete(
+    critic_score_id: str,
     db: Session = Depends(get_db)
 ):
     """
     Remove a critic score from inventory
     """
-    score = db.query(models.CriticScore).get(score_id)
-    if not score:
+    critic_score = db.query(models.CriticScore).get(critic_score_id)
+    if not critic_score:
         raise HTTPException(status_code=404, detail= "Critic score not found")
-    db.delete(score)
+    db.delete(critic_score)
     db.commit()
     return None
