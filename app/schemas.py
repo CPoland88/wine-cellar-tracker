@@ -1,7 +1,9 @@
 from pydantic import BaseModel, UUID4, condecimal, constr
 from typing import Optional, List
 from app.models import BottleSize, ClosureType
-from datetime import date
+from datetime import date, datetime
+
+from app.models import EventTypeEnum
 
 # --- Country Schemas -----------------------------
 class CountryBase(BaseModel):
@@ -156,6 +158,45 @@ class WineMetricsRead(BaseModel):
     current_market: Optional[condecimal(max_digits=10, decimal_places=2)]
     rarity_score: Optional[condecimal(max_digits=5, decimal_places=2)]
     qpr: Optional[condecimal(max_digits=5, decimal_places=2)]
+
+    class Config:
+        orm_mode = True
+
+
+# --- CellarSlot schemas ------------------------------
+class CellarSlotBase(BaseModel):
+    rack: str
+    row: str
+    led_node_id: str
+
+class CellarSlotCreate(CellarSlotBase):
+    """Input for creating a slot."""
+    pass
+
+class CellarSlotRead(CellarSlotBase):
+    """Response model for a slot."""
+    id: UUID4
+
+    class Config:
+        orm_mode = True
+
+
+# --- ScanEvent schemas --------------------------------
+class ScanEventBase(BaseModel):
+    wine_id: UUID4
+    slot_id: UUID4
+    event_type: EventTypeEnum
+    timestamp: Optional[datetime] = None    # will default if not provided
+
+class ScanEventCreate(ScanEventBase):
+    """Input for logging a scan event."""
+    pass
+
+class ScanEventRead(ScanEventBase):
+    """Response model for a scan, with nested relationships."""
+    id: UUID4
+    wine: WineRead
+    slot: CellarSlotRead
 
     class Config:
         orm_mode = True

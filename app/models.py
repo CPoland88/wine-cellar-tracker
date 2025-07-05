@@ -1,5 +1,6 @@
 import uuid
 from enum import Enum as PyEnum
+from datetime import datetime
 
 from sqlalchemy import (
     Column,
@@ -11,7 +12,8 @@ from sqlalchemy import (
     Table,
     UniqueConstraint,
     Date,
-    Numeric
+    Numeric,
+    DateTime
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -262,3 +264,35 @@ class WineMetrics(Base):
     qpr             = Column(DECIMAL(5,2), nullable=True)
 
     wine = relationship('Wine', backref='metrics', uselist=False)
+
+
+# --- Cellar slot for physical bottle locations ---------------
+class CellarSlot(Base):
+    __tablename__ = 'cellar_slots'
+
+    id          = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    rack        = Column(String(50), nullable=False)
+    row         = Column(Integer, nullable=False)
+    led_node_id = Column(String(100), nullable=False)
+
+    __table_args__ = (UniqueConstraint('rack', 'row', name='uix_slot_location'),)
+
+
+# --- In-Out Enum for scan events --------------------------
+class EventTypeEnum(PyEnum):
+    IN = "in"
+    OUT = "out"
+
+# --- ScanEvent to log slotting/unslotting events ------------
+class ScanEvent(Base):
+    __tablename__ = 'scan_events'
+
+    id          = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    wine_id     = Column(UUID(as_uuid=True), ForeignKey('wines.id'), nullable=False)
+    slot_id     = Column(UUID(as_uuid=True), ForeignKey('cellar_slots.id'), nullable=False)
+    event_type  = Column(SAEnum(EventTypeEnum), nullable=False)
+    timestamp   = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    # Relationships for easy access
+    wine = relationship('Wine', backref='scan_events')
+    slot = relationship('CellarSlot', backref='scan_events')
