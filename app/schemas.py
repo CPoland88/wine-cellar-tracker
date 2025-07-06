@@ -165,7 +165,7 @@ class WineMetricsRead(BaseModel):
 
 # --- CellarSlot schemas ------------------------------
 class CellarSlotBase(BaseModel):
-    rack: str
+    rack: int
     row: str
     led_node_id: str
 
@@ -200,3 +200,9 @@ class ScanEventRead(ScanEventBase):
 
     class Config:
         orm_mode = True
+
+
+# --- LED slot colors -----------------------------------
+class SlotColor(BaseModel):
+    slot_id: UUID4
+    color: str          # e.g., "red", "green", "blue"
